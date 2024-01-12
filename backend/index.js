@@ -1,5 +1,6 @@
 const express =require('express')
 const mongoose=require('mongoose')
+require('dotenv').config(); 
 const app=express()
 let mongoDb=require(`./Config/db`)
 mongoose.promise = global.promise;
@@ -8,9 +9,12 @@ mongoose.connect(mongoDb.db).then(()=>{
 },err=>{
     console.log(`database are ${err}`)
 })
+//**************blog folder************ */
+const blogRoute=require(`./Routes/blog.routes`)
+app.use('/api/blog',blogRoute)
 
-
-const port=process.env.port||8000
+const port=process.env.PORT||8000
 app.listen(port,()=>{
 console.log(`listening in port ${port}`)
 })
+
