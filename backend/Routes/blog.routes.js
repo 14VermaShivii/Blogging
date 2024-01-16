@@ -11,9 +11,12 @@
 // module.exports=blogRoute
 
 //**************new code************ */
-
 const express= require('express')
 const blogRoute = express.Router();
-const {createBlog}=require("../Controllers/blogController")
- blogRoute.route("/create").post(createBlog)
-module.exports=blogRoute
+const {createBlog,getBlogbyid,deleteBlog,updateBlog,getallBlog}=require("../Controllers/blogController")
+ blogRoute.route("/create").post(createBlog)  //routes made for create 
+ blogRoute.route("/getallBlog").get(getallBlog) 
+ blogRoute.route("/Blog/:id").delete(deleteBlog).patch(updateBlog).get(getBlogbyid)   //routes made for delete
+
+
+module.exports=blogRoute   //page exported
