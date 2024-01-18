@@ -15,12 +15,14 @@ mongoose.connect(mongoDb.db).then(()=>{
     console.log(`database are ${err}`)
 })
 //**************blog folder************ */
-const blogRoute=require(`./Routes/blog.routes`); 
+const blogRoute=require(`./Routes/blog.routes`); //route of blog
+const authRoute=require(`./Routes/auth.routes`) //route of auth
 // const cookieParser = require('cookie-parser');
 // app.use(express.Router())
-app.use('/api/blog',blogRoute) //middlware
+app.use('/api/auth',authRoute) //middleware of auth
+app.use('/api/blog',blogRoute) //middlware of blog
 
-
+//*******port exported********* */
 const port=process.env.PORT||8000
 app.listen(port,()=>{
 console.log(`listening in port ${port}`)

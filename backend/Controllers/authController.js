@@ -3,10 +3,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 
-const jwtSecret =
-    "4715aed3c946f7b0a38e6b534a9583628d84e96d10fbc04700770d572af3dce43625dd";
+const jwtSecret =process.env.JWT_SECRET;//port exported
 exports.register = async (req, res, next) => {
-    const { firstname, surname, email, password } = req.body;
+    const { firstname, surname, email, password } = req.body; // destructing,json data
     if (password.length < 6) {
         return res.status(400).json({ message: "Password less than 6 characters" });
     }
@@ -32,7 +31,7 @@ exports.register = async (req, res, next) => {
                 // });
                 res.status(201).json({
                     message: "User successfully created",
-                    user: token
+                    user: user
                 });
             })
             .catch((error) =>
