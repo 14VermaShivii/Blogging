@@ -1,14 +1,27 @@
 const User = require("../Models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const mailer = require("../Helpers/mailer");
 
 
-const jwtSecret =process.env.JWT_SECRET;//port exported
+
+const jwtSecret = process.env.JWT_SECRET;//port exported
+//register
 exports.register = async (req, res, next) => {
     const { firstname, surname, email, password } = req.body; // destructing,json data
+    const user=await User.findOne({email})
+        if (user) {
+            return res.status(400).json({
+                status:false,
+                message:"email already exists"
+            })
+        }
     if (password.length < 6) {
         return res.status(400).json({ message: "Password less than 6 characters" });
     }
+//email chacked
+
+
     bcrypt.hash(password, 10).then(async (hash) => {
         await User.create({
             firstname,
@@ -16,19 +29,13 @@ exports.register = async (req, res, next) => {
             email,
             password: hash
         })
+
+        
+        
             .then((user) => {
-                // const maxAge = 3 * 60 * 60;
-                // const token = jwt.sign(
-                //   { id: user._id, user: user.firstname},
-                //   jwtSecret,
-                //   {
-                //     expiresIn: maxAge, // 3hrs
-                //   }
-                // );
-                // res.cookie("jwt", token, {
-                //   httpOnly: true,
-                //   maxAge: maxAge * 1000,
-                // });
+                const msg = `Hi, ${firstname} Please verify your email <a href="http://localhost:7000/api/user/verify?id=${user._id}">Verify</a>`
+
+                // mailer.sendMail(email, "Mail verfication", msg)  //mail sender
                 res.status(201).json({
                     message: "User successfully created",
                     user: user
@@ -62,32 +69,37 @@ exports.login = async (req, res, next) => {
 
         if (!user) {
             res.status(400).json({
-                message: "Login not successful",
+                message: "Please enter valid email",
                 error: "User not found",
             });
         } else {
             // comparing given password with hashed password
+
             bcrypt.compare(password, user.password).then(function (result) {
                 if (result) {
-                    const maxAge = 3 * 60 * 60;
-                    const token = jwt.sign(
-                        { id: user._id, email },
-                        jwtSecret,
-                        {
-                            expiresIn: maxAge, // 3hrs in sec
-                        }
-                    );
-                    res.cookie("jwt", token, {
-                        httpOnly: true,
-                        maxAge: maxAge * 1000, // 3hrs in ms
-                    });
-                    res.status(201).json({
-                        message: "User successfully Logged in",
-                        user: user._id,
-                        role: user.role,
-                    });
+                    if (user.status === 0) {
+                        const maxAge = 3 * 60 * 60;
+                        const token = jwt.sign(
+                            { id: user._id, email },
+                            jwtSecret,
+                            {
+                                expiresIn: maxAge, // 3hrs in sec
+                            }
+                        );
+                        res.cookie("jwt", token, {
+                            httpOnly: true,
+                            maxAge: maxAge * 1000, // 3hrs in ms
+                        });
+                        res.status(201).json({
+                            message: "User successfully Logged in",
+                            user: user._id,
+                            role: user.role,
+                        });
+                    } else {
+                        res.status(400).json({ message: "Please varify your email" });
+                    }
                 } else {
-                    res.status(400).json({ message: "Login not succesful" });
+                    res.status(400).json({ message: "Please enter valid password" });
                 }
             });
         }
@@ -98,6 +110,8 @@ exports.login = async (req, res, next) => {
         });
     }
 };
+
+
 
 
 
