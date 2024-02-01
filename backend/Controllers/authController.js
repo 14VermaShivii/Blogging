@@ -35,7 +35,7 @@ exports.register = async (req, res, next) => {
             .then((user) => {
                 const msg = `Hi, ${firstname} Please verify your email <a href="http://localhost:7000/api/user/verify?id=${user._id}">Verify</a>`
 
-                // mailer.sendMail(email, "Mail verfication", msg)  //mail sender
+                mailer.sendMail(email, "Mail verfication", msg)  //mail sender*****
                 res.status(201).json({
                     message: "User successfully created",
                     user: user

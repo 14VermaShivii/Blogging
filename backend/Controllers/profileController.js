@@ -1,7 +1,7 @@
 const profileModel = require("../Models/Profile");
 const User = require("../Models/User");
 const bcrypt = require("bcryptjs");
-const mailer=require("../Helpers/mailer")
+const mailer = require("../Helpers/mailer")
 const PasswordReset = require("../Models/PasswordReset");
 const rs = require("randomstring");
 // const ErrorHandler = require("../utils/errorHandler");
@@ -10,27 +10,27 @@ const rs = require("randomstring");
 
 // get profile details
 exports.getProfileInfo = async (req, res) => {
-    const profile = await profileModel.find({ userId: req.params.id }).populate("userId")
-    res.status(200).json({
-        success: true,
-        profile
-    })
+  const profile = await profileModel.find({ userId: req.params.id }).populate("userId")
+  res.status(200).json({
+    success: true,
+    profile
+  })
 };
 
 
-// update products
+// update profile
 
 
 exports.updateProfile = async (req, res, next) => {
-     let profile = await profileModel.updateOne({ userId: req.body.userId }, req.body,{
-      new:true,
-      upsert:true
-    });
-    res.status(200).json({
-        success: true,
-        profile,
-        message: "Profile updated successfully"
-    })
+  let profile = await profileModel.updateOne({ userId: req.body.userId }, req.body, {
+    new: true,
+    upsert: true
+  });
+  res.status(200).json({
+    success: true,
+    profile,
+    message: "Profile updated successfully"
+  })
 };
 
 
@@ -38,40 +38,40 @@ exports.updateProfile = async (req, res, next) => {
 
 
 exports.changePassword = async (req, res, next) => {
-    const { userId,oldpassword,newPassword } = req.body;
-    try {
-      const user = await User.findOne({ _id:userId });
-        bcrypt.compare(oldpassword, user.password).then(function (result) {
-          if (result) {
-            bcrypt.hash(newPassword, 10).then(async (hash) => {
-                await User.updateOne({_id:userId},{
-                    password: hash
-                })
-                  .then((user) => {
-                    res.status(200).json({
-                      message: "Password Changed Successfully",
-                      user:userId
-                    });
-                  })
-                  .catch((error) =>{
-                    res.status(400).json({
-                      message: "error in password changed",
-                      error: error.message,
-                    })
-                });
+  const { userId, oldpassword, newPassword } = req.body;
+  try {
+    const user = await User.findOne({ _id: userId });
+    bcrypt.compare(oldpassword, user.password).then(function (result) {
+      if (result) {
+        bcrypt.hash(newPassword, 10).then(async (hash) => {
+          await User.updateOne({ _id: userId }, {
+            password: hash
+          })
+            .then((user) => {
+              res.status(200).json({
+                message: "Password Changed Successfully",
+                user: userId
               });
-          } else {
-            res.status(400).json({ message: "Old Password does not match" });
-          }
+            })
+            .catch((error) => {
+              res.status(400).json({
+                message: "error in password changed",
+                error: error.message,
+              })
+            });
         });
-     
-    } catch (error) {
-      res.status(400).json({
-        message: "An error occurred",
-        error: error.message,
-      });
-    }
-  };
+      } else {
+        res.status(400).json({ message: "Old Password does not match" });
+      }
+    });
+
+  } catch (error) {
+    res.status(400).json({
+      message: "An error occurred",
+      error: error.message,
+    });
+  }
+};
 
 // email verify
 
@@ -126,7 +126,7 @@ exports.forgotPassword = async (req, res) => {
         message: "Email not found"
       })
     } else {
-      await PasswordReset.deleteMany({ userId: getUser._id })
+      await PasswordReset.deleteMany({ userId: getUser._id }) //only one delete id remain
       const randomString = rs.generate();
       await PasswordReset.create({
         userId: getUser._id,
@@ -156,14 +156,91 @@ exports.forgotPassword = async (req, res) => {
   }
 }
 
+//************reset password*****************
+exports.resetPassword = async (req, res) => {
+  try {
+    const token = req.query.token
+    const gettoken = await PasswordReset.findOne({ token });
+    if (!gettoken)
+      return res.status(404).json({
+        success: true,
+        message: "token not found"
+      })
+    else {
+      return res.status(200).json({
+        success: true,
+        userId: gettoken.userId
+      })
+    }
+  }
+  catch (err) {
+    return res.status(400).json({
+      message: "reset error",
+      // error: error.message,
+    })
+  }
+}
+//updatePassword***************************************
+exports.updatePassword = async (req, res) => {
+  try {
+    const { userId, comformPassword, newPassword } = req.body;
+    if (!userId) {
+      return res.status(404).json({
+        success: false,
+        message: "user id not found"
+      })
+    }
+
+    const getuser = await User.findOne({ _id: userId })
+    if (!getuser) {
+      return res.status(404).json({
+        success: false,
+        message: "user not found"
+      })
+    }
+    if (newPassword !== comformPassword) {
+      return res.status(404).json({
+        success: false,
+        message: "Password and conform passwors does not match"
+      })
+    }
+
+    bcrypt.hash(comformPassword, 10).then(async (hash) => {
+      await User.updateOne({ _id: userId }, {
+        password: hash
+      })
+        .then((user) => {
+          res.status(200).json({
+            message: "Password reset Successfully",
+            user: userId
+          });
+        })
+        .catch((error) => {
+          res.status(400).json({
+            message: "error in password changed",
+            error: error.message,
+          })
+        });
+    });
+       
+
+  } catch (error) {
+    res.status(400).json({
+      message: "update error occurred",
+      error: error.message,
+    });
+  }
+};
+
 // logout
 
 
 exports.logout = async (req, res) => {
-    res.cookie("jwt", "", { maxAge: "1" })
-    res.status(200).json({
-        success: true,
-        message: "Logout successfully"
-    })
+  res.cookie("jwt", "", { maxAge: "1" })
+  res.status(200).json({
+    success: true,
+    message: "Logout successfully"
+  })
 }
+
 
