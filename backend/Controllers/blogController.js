@@ -1,5 +1,5 @@
 const blogModel = require("../Models/Blog")  //exported
-//***************create id ************* */
+//***************create  blog   id ************* */
 
 exports.createBlog = async (req, res) => {       //file exported
     const blog = await blogModel.create(req.body)
@@ -38,7 +38,7 @@ exports.deleteBlog = async (req, res, next) => {
         message: "Blog deleted successfully"
     })
 };
-//***** update data****************/
+//***** update blog id****************/
 exports.updateBlog = async (req, res) => {
     // let blog = await blogModel.findById(req.params.id);
     // if (!blog) {
@@ -55,7 +55,7 @@ exports.updateBlog = async (req, res) => {
         message: "Blog updated successfully"
     })
 };
-//***********get all************ */
+//***********get all blog id************ */
 exports.getallBlog = async (req, res) => {       //file exported
     const  blogs = await blogModel.find()
     res.status(200).json({

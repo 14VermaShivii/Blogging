@@ -13,6 +13,10 @@ dob:{
 createdDate:{
     type:Date,
     default:Date.now
+},
+profilePicture:{
+    type:String,
+    required:true
 }
 })
 module.exports=mongoose.model('Profile',profileSchema)

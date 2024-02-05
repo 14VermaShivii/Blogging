@@ -21,18 +21,43 @@ exports.getProfileInfo = async (req, res) => {
 // update profile
 
 
-exports.updateProfile = async (req, res, next) => {
-  let profile = await profileModel.updateOne({ userId: req.body.userId }, req.body, {
-    new: true,
-    upsert: true
-  });
-  res.status(200).json({
-    success: true,
-    profile,
-    message: "Profile updated successfully"
-  })
-};
+// exports.updateProfile = async (req, res, next) => {
+//   let profile = await profileModel.updateOne({ userId: req.body.userId }, req.body, {
+//     new: true,
+//     upsert: true
+//   });
+//   res.status(200).json({
+//     success: true,
+//     profile,
+//     message: "Profile updated successfully"
+//   })
+// };
 
+//new code of image
+exports.updateProfile = async (req, res, next) => {
+  try {
+    const { userId, about, dob } = req.body;
+    const profile = await profileModel.updateOne({ userId }, {
+      about: about,
+      dob: dob,
+      profilePicture: 'images/' + req.file.filename
+    }, {
+      new: true,
+      upsert: true,
+    })
+    return res.status(200).json({
+      success:true,
+      message: "images uploaded successfully"
+      
+    })
+  }
+  catch (error) {
+    return res.status(400).json({
+      message: "images does not uploaded",
+      error: error.message
+    })
+  }
+}
 
 // change password
 
@@ -222,7 +247,7 @@ exports.updatePassword = async (req, res) => {
           })
         });
     });
-       
+
 
   } catch (error) {
     res.status(400).json({
