@@ -13,12 +13,12 @@ filename:function(req,file,cb){
     cb(null,name) 
 }
 })
-const upload=multer({storage:imageStorage})
+const upload=multer({storage:imageStorage}).fields([{name:"profilePicture"},{name:"timeline"}]);
 
 const { updateProfile,getProfileInfo,logout,changePassword, emailVerify, forgotPassword, resetPassword, updatePassword } = require("../Controllers/profileController");
 const { userAuth } = require("../Middleware/auth");
 
-router.route("/profile").post(userAuth,upload.single('profilePicture'),updateProfile)
+router.route("/profile").post(userAuth,upload,updateProfile)
 // router.route("/profile/:id").patch(userAuth,getProfileInfo).get(userAuth,getProfileInfo);
 router.route("/profile/:id").get(userAuth,getProfileInfo);
 router.route("/change-password").post(userAuth,changePassword)

@@ -36,20 +36,26 @@ exports.getProfileInfo = async (req, res) => {
 //new code of image
 exports.updateProfile = async (req, res, next) => {
   try {
+    // return res.status(200).json({
+      
+    // })
     const { userId, about, dob } = req.body;
     const profile = await profileModel.updateOne({ userId }, {
       about: about,
       dob: dob,
-      profilePicture: 'images/' + req.file.filename
+      profilePicture: 'images/' + req.files.profilePicture[0].filename,
+      timeline: 'images/' + req.files.timeline[0].filename
     }, {
       new: true,
       upsert: true,
     })
+ 
     return res.status(200).json({
       success:true,
       message: "images uploaded successfully"
       
     })
+   
   }
   catch (error) {
     return res.status(400).json({

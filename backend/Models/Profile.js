@@ -17,6 +17,10 @@ createdDate:{
 profilePicture:{
     type:String,
     required:true
+},
+timeline:{
+    type:String,
+    required:true
 }
 })
 module.exports=mongoose.model('Profile',profileSchema)
