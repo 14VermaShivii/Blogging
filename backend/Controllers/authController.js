@@ -2,7 +2,7 @@ const User = require("../Models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const mailer = require("../Helpers/mailer");
-
+    
 
 
 const jwtSecret = process.env.JWT_SECRET;//port exported
@@ -50,10 +50,8 @@ exports.register = async (req, res, next) => {
     });
 };
 
-
+    
 // login controller
-
-
 exports.login = async (req, res, next) => {
     const { email, password } = req.body;
 
@@ -78,12 +76,12 @@ exports.login = async (req, res, next) => {
             bcrypt.compare(password, user.password).then(function (result) {
                 if (result) {
                     if (user.status === 0) {
-                        const maxAge = 3 * 60 * 60;
+                        const maxAge = 3 * 60 * 60; 
                         const token = jwt.sign(
                             { id: user._id, email },
                             jwtSecret,
                             {
-                                expiresIn: maxAge, // 3hrs in sec
+                                expiresIn: maxAge, // 3hrs in sec       
                             }
                         );
                         res.cookie("jwt", token, {
