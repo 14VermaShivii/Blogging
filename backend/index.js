@@ -19,12 +19,16 @@ mongoose.connect(mongoDb.db).then(()=>{
 app.use(cors());                          //route of core
 const blogRoute=require(`./Routes/blog.routes`); //route of blog
 const authRoute=require(`./Routes/auth.routes`) //route of auth
-const profileRoute=require(`./Routes/profile.routes`) //route of profile
+const profileRoute=require(`./Routes/profile.routes`); //route of profile
+const newsletterRoute = require('./Routes/newsletter.routes'); //route of newsletter
+const contactRoute = require('./Routes/contact.routes');
 // const cookieParser = require('cookie-parser');
 // app.use(express.Router())
 app.use('/api/auth',authRoute) //middleware of auth
 app.use('/api/blog',blogRoute) //middlware of blog
 app.use('/api/user',profileRoute)//middleware of profile
+app.use('/api/newsletter',newsletterRoute) //middleware of newsletter
+app.use('/api/contact',contactRoute)
 
     
 //*******port exported********* */
