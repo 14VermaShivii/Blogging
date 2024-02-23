@@ -1,14 +1,15 @@
 const blogModel = require("../Models/Blog")  //exported
+
 //***************create  blog   id ************* */
 
-exports.createBlog = async (req, res) => {  
-    try{     //file exported
+exports.createBlog = async (req, res) => {
+  try {     //file exported
     const blog = await blogModel.create(req.body)
     res.status(201).json({
-        sucess: true,
-        message: "blog created sucessfully"
+      sucess: true,
+      message: "blog created sucessfully"
     })
-}catch (error) {
+  } catch (error) {
     return res.status(400).json({
       message: "blog does not create",
       error: error.message
@@ -17,19 +18,19 @@ exports.createBlog = async (req, res) => {
 }
 //***************get data by id************
 exports.getBlogbyid = async (req, res) => {
-    try{
+  try {
     let blog = await blogModel.findById(req.params.id);
     if (!blog) {
-        return res.status(404).json({
-            success: true,
-            message: "No Blog found"
-        })
+      return res.status(404).json({
+        success: true,
+        message: "No Blog found"
+      })
     }
     res.status(200).json({
-        success: true,
-        blog
+      success: true,
+      blog
     })
-}catch (error) {
+  } catch (error) {
     return res.status(400).json({
       message: "blog does not found id",
       error: error.message
@@ -39,21 +40,21 @@ exports.getBlogbyid = async (req, res) => {
 
 //**********delete id************ */
 exports.deleteBlog = async (req, res, next) => {
-    try{
+  try {
     let blog = await blogModel.findById(req.params.id);
     if (!blog) {
-        return res.status(404).json({
-            success: true,
-            message: "No Blog Found"
-        })
+      return res.status(404).json({
+        success: true,
+        message: "No Blog Found"
+      })
     }
     blog = await blogModel.deleteOne();
     res.status(200).json({
-        success: true,
-        message: "Blog deleted successfully"
+      success: true,
+      message: "Blog deleted successfully"
     })
-}
-catch (error) {
+  }
+  catch (error) {
     return res.status(400).json({
       message: "blog does not deleted",
       error: error.message
@@ -62,23 +63,23 @@ catch (error) {
 };
 //***** update blog id****************/
 exports.updateBlog = async (req, res) => {
-    // let blog = await blogModel.findById(req.params.id);
-    // if (!blog) {
-    //     return res.status(404).json({
-    //         success: true,
-    //         message: "No Blog data found"
-    //     })
-    // }
-    try{
+  // let blog = await blogModel.findById(req.params.id);
+  // if (!blog) {
+  //     return res.status(404).json({
+  //         success: true,
+  //         message: "No Blog data found"
+  //     })
+  // }
+  try {
     blog = await blogModel.findByIdAndUpdate(req.params.id, req.body, {
-        upsert: true
+      upsert: true
     })
     res.status(200).json({
-        success: true,
-        message: "Blog updated successfully"
+      success: true,
+      message: "Blog updated successfully"
     })
-}
-catch (error) {
+  }
+  catch (error) {
     return res.status(400).json({
       message: "blog does not updated ",
       error: error.message
@@ -86,19 +87,78 @@ catch (error) {
   }
 };
 //***********get all blog id************ */
-exports.getallBlog = async (req, res) => {  
-    try{     //file exported
-    const  blogs = await blogModel.find()
+exports.getallBlog = async (req, res) => {                  //file exported
+  try {
+    const blogs = await blogModel.find(req.query)
+    console.log(req.query)                            //for category sports
+    if(blogs.length>0){
     res.status(200).json({
-        sucess: true,
-        message: "blog get all sucessfully",
-        blogs
+      count: blogs.length,                //for count data                       
+      sucess: true,
+      message: "get all  blog sucessfully",
+      blogs
     })
-}
-catch (error) {
+  }else{
     return res.status(400).json({
-      message: "getallblog does not came",
+    count: blogs.length,                                      
+      sucess: true,
+      message: " No blogs found",
+      
+    })
+  }
+  }
+  catch (error) {
+    return res.status(400).json({
+      message: "getallblog does not found",
       error: error.message
     })
   }
 }
+
+
+//for search api*****************
+
+exports.getBlogBySearch = async (req, res) => {
+    // console.log(req.query)
+    try {
+        const blogs = await blogModel.find(
+            {
+                //  "blogTitle": { $regex :req.query.q }
+               
+                "$or": [
+                    { "blogTitle": { $regex: req.query.q } },
+                    { "blogDescription": { $regex: req.query.q } }
+                ],
+              //   "$and": [
+              //     { "blogTitle": { $regex: req.query.q } },
+              //     { "blogDescription": { $regex: req.query.q } }
+              // ]
+
+                // "$or": [
+                //     { "blogTitle": { $regex :req.query.q }}
+                // ]
+
+
+
+
+            }
+        );
+        if (blogs.length > 0) {
+            res.status(200).json({
+                success: true,
+                count: blogs.length,
+                blogs
+            })
+        } else {
+            res.status(400).json({
+                success: false,
+                message: "No blogs found"
+            })
+        }
+    } catch (err) {
+        return res.status(400).json({
+            message: err.error
+        })
+    }
+};
+
